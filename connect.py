@@ -11,8 +11,8 @@ load_dotenv(verbose=True)
 
 # env에 담아둔 토큰값을 변수에 할당
 Token = os.getenv('Token')
-# Channel_ID_natural = int(os.getenv('Channel_ID_natural'))
-# Channel_ID_bangOn = int(os.getenv('Channel_ID_bangOn'))
+Channel_ID_natural = int(os.getenv('Channel_ID_natural'))
+Channel_ID_bangOn = int(os.getenv('Channel_ID_bangOn'))
 
 # 트위치 개발자 아이디와 시크릿키도 할당한다.
 twicth_Client_ID = os.getenv('twicth_Client_ID')
@@ -34,14 +34,14 @@ AkaName = ['아카이로 류', '류', '아카', '대장']
 class MyClient(discord.Client):
 
     async def on_ready(self):
-        # channel_bangOn = self.get_channel(Channel_ID_bangOn)
+        channel_bangOn = self.get_channel(Channel_ID_bangOn)
 
-        for gulid in self.guilds:
-            system_channel = gulid.system_channel
-            if system_channel:
-                await system_channel.send('안녕? 나는 아카이로 류님의 방송챗봇이야. 방송이 켜지면 내가 알려줄게!')
+        # for gulid in self.guilds:
+        #     system_channel = gulid.system_channel
+        #     if system_channel:
+        #         await system_channel.send('안녕? 나는 아카이로 류님의 방송챗봇이야. 방송이 켜지면 내가 알려줄게!')
 
-        # await channel_bangOn.send('안녕? 나는 아카이로 류님의 방송챗봇이야. 방송이 켜지면 내가 알려줄게!')
+        await channel_bangOn.send('안녕? 나는 아카이로 류님의 방송챗봇이야. 방송이 켜지면 내가 알려줄게!')
 
         # API 인증키 부분.
         oauth_key = requests.post("https://id.twitch.tv/oauth2/token?client_id=" + twicth_Client_ID +
@@ -69,10 +69,7 @@ class MyClient(discord.Client):
             try:
                 # 방송 정보에서 'data'에서 'type' 값이 live 이고 체크상태가 false 이면 방송 알림(오프라인이면 방송정보가 공백으로 옴)
                 if loads(response_channel.text)['data'][0]['type'] == 'live' and check == False:
-                    for guild in self.guilds:
-                        system_channel = guild.system_channel
-                        if system_channel:
-                            await system_channel.send(ment + '\n' + loads(response_channel.text)['data'][0]['title'] + '\n https://www.twitch.tv/' + Aka_ID)
+                    await channel_bangOn.send(ment + '\n https://www.twitch.tv/' + Aka_ID)
                     print("Online")
                     check = True
             except:
@@ -84,10 +81,18 @@ class MyClient(discord.Client):
     # 새로운 멤버가 접속하였을 때
     async def on_member_join(self, member):
         # 접속된 채널을 변수에 담는다.
-        # channel_natural = client.get_channel(channel_natural)
+        channel_natural = client.get_channel(channel_natural)
 
         # 채널에 접속한 멤버를 언급하여 인사를 보낸다.
-        await member.guild.system_channel.send(f'{member.mention} 님, 류하 류하!')
+        await member.channel_natural.send(f'{member.mention} 님, 류하 류하!')
+
+    # 새로운 멤버가 접속하였을 때
+    async def on_member_remove(self, member):
+        # 접속된 채널을 변수에 담는다.
+        channel_natural = client.get_channel(channel_natural)
+
+        # 채널에 접속한 멤버를 언급하여 인사를 보낸다.
+        await member.channel_natural.send(f'{member.mention} 님, 류바.. 또 봐요🥺')
 
     # 특정 메세지에 대한 답변 설정
     async def on_message(self, message):
