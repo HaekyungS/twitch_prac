@@ -6,34 +6,57 @@ import requests
 import discord
 from dotenv import load_dotenv
 
+# dotenv 사용을 위해, env를 읽는다.
 load_dotenv(verbose=True)
 
-
+# env에 담아둔 토큰값을 변수에 할당
 Token = os.getenv('Token')
-Channel_ID_natural = int(os.getenv('Channel_ID_natural'))
-Channel_ID_bangOn = int(os.getenv('Channel_ID_bangOn'))
+# Channel_ID_natural = int(os.getenv('Channel_ID_natural'))
+# Channel_ID_bangOn = int(os.getenv('Channel_ID_bangOn'))
 
+# 트위치 개발자 아이디와 시크릿키도 할당한다.
 twicth_Client_ID = os.getenv('twicth_Client_ID')
 twitch_Secert_Key = os.getenv('twitch_Secert_Key')
 
+# 원하는 스트리머의 아이디.
 Aka_ID = 'rh_ryu'
-ment = '나 보러 안올거야?'
+
+# 방송이 켜졌을 때, 링크와 함께 할 멘트
+ment = '나 보러 안 올거야?'
+
+# 다른 부분의 멘트
 offline = '나 보고싶어? 나 대신 류튜브 봐줘!! 많관부!'
+
+# 다양한 이름이라 배열로 담았다.
 AkaName = ['아카이로 류', '류', '아카', '대장']
 
 
 class MyClient(discord.Client):
+
     async def on_ready(self):
-        channel_bangOn = self.get_channel(Channel_ID_bangOn)
-        # await channel_natural.send('아카가 지구다, 세상이다, 최고다')
-        # await channel_bangOn.send('똑똑히 봐라! 이게 아카다! 이게 아카이로 류다!')
+        # channel_bangOn = self.get_channel(Channel_ID_bangOn)
+
+        for gulid in self.guilds:
+            system_channel = gulid.system_channel
+            if system_channel:
+                await system_channel.send('안녕? 나는 아카이로 류님의 방송챗봇이야. 방송이 켜지면 내가 알려줄게!')
+
+        # await channel_bangOn.send('안녕? 나는 아카이로 류님의 방송챗봇이야. 방송이 켜지면 내가 알려줄게!')
+
+        # API 인증키 부분.
         oauth_key = requests.post("https://id.twitch.tv/oauth2/token?client_id=" + twicth_Client_ID +
                                   "&client_secret=" + twitch_Secert_Key + "&grant_type=client_credentials")
+        # access token
         access_token = loads(oauth_key.text)["access_token"]
+        # 토큰 타입
         token_type = 'Bearer '
+        # 서명
         authorization = token_type + access_token
-        print(authorization)
+
+        # print(authorization)
+
         check = False
+
         while True:
             print("ready on Notification")
             # 트위치 api에게 방송 정보 요청
@@ -46,20 +69,27 @@ class MyClient(discord.Client):
             try:
                 # 방송 정보에서 'data'에서 'type' 값이 live 이고 체크상태가 false 이면 방송 알림(오프라인이면 방송정보가 공백으로 옴)
                 if loads(response_channel.text)['data'][0]['type'] == 'live' and check == False:
-                    await channel_bangOn.send(ment + '\n' + loads(response_channel.text)['data'][0]['title'] + '\n https://www.twitch.tv/' + Aka_ID)
+                    for guild in self.guilds:
+                        system_channel = guild.system_channel
+                        if system_channel:
+                            await system_channel.send(ment + '\n' + loads(response_channel.text)['data'][0]['title'] + '\n https://www.twitch.tv/' + Aka_ID)
                     print("Online")
                     check = True
             except:
                 print("Offline")
                 check = False
+            # 30초마다 요청을 보낸다.
             await asyncio.sleep(30)
 
+    # 새로운 멤버가 접속하였을 때
     async def on_member_join(self, member):
-        channel_natural = client.get_channel(Channel_ID_natural)
-        print('여기 접속은 하니?')
-        print(member)
-        await channel_natural.send(f'{member.mention} 님, 류하 류하!')
+        # 접속된 채널을 변수에 담는다.
+        # channel_natural = client.get_channel(channel_natural)
 
+        # 채널에 접속한 멤버를 언급하여 인사를 보낸다.
+        await member.guild.system_channel.send(f'{member.mention} 님, 류하 류하!')
+
+    # 특정 메세지에 대한 답변 설정
     async def on_message(self, message):
         if message.author == self.user:
             return
