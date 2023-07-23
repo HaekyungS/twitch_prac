@@ -15,9 +15,10 @@ Channel_ID_bangOn = int(os.getenv('Channel_ID_bangOn'))
 
 twicth_Client_ID = os.getenv('twicth_Client_ID')
 twitch_Secert_Key = os.getenv('twitch_Secert_Key')
+
 Aka_ID = 'rh_ryu'
 ment = '나 보러 안올거야?'
-offline = '내가 보고 싶다면 류튜브 봐줘!!'
+offline = '나 보고싶어? 나 대신 류튜브 봐줘!! 많관부!'
 
 
 class MyClient(discord.Client):
@@ -26,8 +27,8 @@ class MyClient(discord.Client):
         channel_natural = self.get_channel(Channel_ID_natural)
         channel_bangOn = self.get_channel(Channel_ID_bangOn)
 
-        await channel_natural.send('아카가 지구다, 세상이다, 최고다')
-        await channel_bangOn.send('똑똑히 봐라! 이게 아카다! 이게 아카이로 류다!')
+        # await channel_natural.send('아카가 지구다, 세상이다, 최고다')
+        # await channel_bangOn.send('똑똑히 봐라! 이게 아카다! 이게 아카이로 류다!')
 
         oauth_key = requests.post("https://id.twitch.tv/oauth2/token?client_id=" + twicth_Client_ID +
                                   "&client_secret=" + twitch_Secert_Key + "&grant_type=client_credentials")
@@ -43,7 +44,7 @@ class MyClient(discord.Client):
         while True:
             print("ready on Notification")
 
-          # 트위치 api에게 방송 정보 요청
+        # 트위치 api에게 방송 정보 요청
 
             headers = {'client-id': twicth_Client_ID,
                        'Authorization': authorization}
@@ -54,35 +55,52 @@ class MyClient(discord.Client):
             print(response_channel.text)
 
         # 라이브 상태 체크
-
             try:
                 # 방송 정보에서 'data'에서 'type' 값이 live 이고 체크상태가 false 이면 방송 알림(오프라인이면 방송정보가 공백으로 옴)
                 if loads(response_channel.text)['data'][0]['type'] == 'live' and check == False:
-                    await channel_bangOn.send(ment + '\n https://www.twitch.tv/' + Aka_ID)
+                    await channel_bangOn.send(ment + '\n' + loads(response_channel.text)['data'][0]['title'] + '\n https://www.twitch.tv/' + Aka_ID)
                     print("Online")
                     check = True
 
             except:
-                # await channel_bangOn.send(offline+'\n https://www.youtube.com/@ryuch.821')
                 print("Offline")
                 check = False
 
             await asyncio.sleep(30)
 
+    async def on_member_join(self, member):
+        channel_natural = self.get_channel(Channel_ID_natural)
+
+        await channel_natural.send(f'{member.mention} 님, 류하 류하!')
+
     async def on_message(self, message):
         if message.author == self.user:
             return
 
-        if message.content in ('아카이로 류', '류', '아카', '대장'):
+        if message.content in ('안녕', '안녕하세요', '하이', 'hi', 'hello', '안뇽'):
+            await message.channel.send('안녕, 너도 선타대야?')
+
+        if any(word in message.content for word in ('아카이로 류', '류', '아카', '대장')) and '귀여워' in message.content:
             await message.channel.send('옴총 귀여워. 알아?')
 
-        if '생일' in message.content and '언제' in message.content:
+        if message.content in ('나도 친구', '친해지고 싶어요', '친구하고 싶어요'):
+            await message.channel.send('어.. 음.. 공룡.. 좋아하세요?')
+
+        if any(word in message.content for word in ('아카이로 류', '류', '아카', '대장')) and '생일' and '언제' in message.content:
             await message.channel.send('그것도 몰라? 11월 1일이잖아!! 난 이런 게 서운해🥺')
 
-        if message.content in ('류튜브', '유튜브', '보고싶다'):
+        if any(word in message.content for word in ('보고싶다', '류튜브', '유튜브')):
             await message.channel.send(offline+'\n https://www.youtube.com/@ryuch.821')
 
-    # async def BangOn_message(self, messege):
+        # 여긴 지워니용이라, 나중엔 지워야함 응응
+        if message.content == '정인아 사랑해':
+            await message.channel.send('나도 사랑해, 지원아')
+
+        if message.content in ('정인아', '정인아♡'):
+            await message.channel.send('웅, 왜 불러, 지원아?')
+
+        if message.content == '양정인 만세':
+            await message.channel.send('지원이 만세!!❤️')
 
 
 intents = discord.Intents.default()
