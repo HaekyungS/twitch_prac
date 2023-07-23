@@ -1,23 +1,23 @@
 # -*- coding: utf-8 -*-
-
-import discord
-import requests
-from json import loads
+import os
 import asyncio
+from json import loads
+import requests
+import discord
+from dotenv import load_dotenv
+
+load_dotenv(verbose=True)
 
 
-Token = '내 토큰'
-Channel_ID_natural = '내 채널'
-Channel_ID_bangOn = '내 채널'
+Token = os.getenv('Token')
+Channel_ID_natural = int(os.getenv('Channel_ID_natural'))
+Channel_ID_bangOn = int(os.getenv('Channel_ID_bangOn'))
 
-twicth_Client_ID = '채널 아이디'
-twitch_Secert_Key = '비밀키'
+twicth_Client_ID = os.getenv('twicth_Client_ID')
+twitch_Secert_Key = os.getenv('twitch_Secert_Key')
 Aka_ID = 'rh_ryu'
 ment = '나 보러 안올거야?'
 offline = '내가 보고 싶다면 류튜브 봐줘!!'
-
-# channel_bangOn = discord.Client().get_channel(Channel_ID_bangOn)
-# channel_natural = discord.Client().get_channel(Channel_ID_natural)
 
 
 class MyClient(discord.Client):
