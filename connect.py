@@ -11,8 +11,15 @@ load_dotenv(verbose=True)
 
 # env에 담아둔 토큰값을 변수에 할당
 Token = os.getenv("Token")
+
+# 플젝중서버
 Channel_ID_natural = int(os.getenv("Channel_ID_natural"))
 Channel_ID_bangOn = int(os.getenv("Channel_ID_bangOn"))
+
+# 쪼에의 놀이터 서버
+Channel_ID_bangOn2 = int(os.getenv("Channel_ID_bangOn_play"))
+Channel_ID_natural2 = int(os.getenv("Channel_ID_natural_play"))
+
 test_ID = int(os.getenv("test_channel_ID"))
 
 # 트위치 개발자 아이디와 시크릿키도 할당한다.
@@ -35,7 +42,7 @@ AkaName = ["아카이로 류", "류", "아카", "대장"]
 class MyClient(discord.Client):
     async def on_ready(self):
         channel_bangOn = self.get_channel(Channel_ID_bangOn)
-        # channel_test = self.get_channel(test_ID)
+        channel_bangOn_play = self.get_channel(Channel_ID_bangOn2)
 
         # for gulid in self.guilds:
         #     system_channel = gulid.system_channel
@@ -66,7 +73,8 @@ class MyClient(discord.Client):
         while True:
             print("ready on Notification")
             # 트위치 api에게 방송 정보 요청
-            headers = {"client-id": twicth_Client_ID, "Authorization": authorization}
+            headers = {"client-id": twicth_Client_ID,
+                       "Authorization": authorization}
             response_channel = requests.get(
                 "https://api.twitch.tv/helix/streams?user_login=" + Aka_ID,
                 headers=headers,
@@ -83,7 +91,12 @@ class MyClient(discord.Client):
                     await channel_bangOn.send(
                         ment + "\n https://www.twitch.tv/" + Aka_ID
                     )
-                    # await channel_test.send('뉴님뱅확인중'+'/n https://www.twitch.tv/onyu74')
+                    print("Online")
+                    check = True
+
+                    await channel_bangOn_play.send(
+                        ment + "\n https://www.twitch.tv/" + Aka_ID
+                    )
                     print("Online")
                     check = True
             except:
@@ -96,6 +109,7 @@ class MyClient(discord.Client):
 
     # 새로운 멤버가 접속하였을 때
     async def on_member_join(self, member):
+
         # 접속된 채널을 변수에 담는다.
         channel_natural = client.get_channel(channel_natural)
 
@@ -103,6 +117,7 @@ class MyClient(discord.Client):
         await member.channel_natural.send(f"{member.mention} 님, 류하 류하!")
 
     # 새로운 멤버가 접속하였을 때
+
     async def on_member_remove(self, member):
         # 접속된 채널을 변수에 담는다.
         channel_natural = client.get_channel(channel_natural)
@@ -112,8 +127,6 @@ class MyClient(discord.Client):
 
     # 특정 메세지에 대한 답변 설정
     async def on_message(self, message):
-        channel = client.get_channel(Channel_ID_bangOn)
-
         if message.author == self.user:
             return
         if message.content in ("안녕", "안녕하세요", "하이", "hi", "hello", "안뇽"):
@@ -131,7 +144,7 @@ class MyClient(discord.Client):
             and "언제" in message.content
         ):
             await message.channel.send("그것도 몰라? 11월 1일이잖아!! 난 이런 게 서운해🥺")
-        if any(word in message.content for word in ("보고싶다", "보고싶어", "류튜브", "유튜브")):
+        if any(word in message.content for word in ("아카 보고싶다", "아가용 보고싶어", "류튜브 많관부", "아카이로 류 보고싶어")):
             await message.channel.send(
                 offline + "\n https://www.youtube.com/@ryuch.821"
             )
